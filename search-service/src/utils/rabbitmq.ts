@@ -3,7 +3,8 @@ import { logger } from "./logger";
 
 let channelModel: amqp.ChannelModel | null = null;
 let channel: amqp.Channel | null = null;
-const EXCHANGE_NAME = "posts_exchange";
+
+const EXCHANGE_NAME = "post_exchange";
 
 export const connectToRabbitMQ = async () => {
   try {
@@ -23,7 +24,7 @@ export const consumeEvent = async (
   callback: (msg: amqp.ConsumeMessage | null) => void
 ) => {
   if (!channel) {
-    logger.error("RabbitMQ channel is not established");
+    await connectToRabbitMQ();
     return;
   }
 

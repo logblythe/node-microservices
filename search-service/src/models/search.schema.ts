@@ -25,7 +25,7 @@ searchPostSchema.index({ content: "text" });
 searchPostSchema.index({ createdAt: -1 });
 
 const SearchPostModel = mongoose.model<SearchPostType>(
-  "SearchPost",
+  "search-posts",
   searchPostSchema
 );
 

@@ -35,9 +35,10 @@ app.use(errorHandler);
 
 async function startServer() {
   try {
-    connectToRabbitMQ();
+    await connectToRabbitMQ();
 
     await consumeEvent("post.created", handlePostCreated);
+
     await consumeEvent("post.deleted", handlePostDeleted);
 
     app.listen(PORT, () => {

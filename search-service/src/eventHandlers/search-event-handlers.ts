@@ -1,5 +1,6 @@
 import amqp from "amqplib";
 import SearchPostModel from "../models/search.schema";
+import { SearchPostType } from "../types/search-post";
 import { logger } from "../utils/logger";
 
 const handlePostCreated = async (msg: amqp.ConsumeMessage | null) => {
@@ -8,9 +9,9 @@ const handlePostCreated = async (msg: amqp.ConsumeMessage | null) => {
 
     const postData = JSON.parse(msg.content.toString());
 
-    const searchPostModel = new SearchPostModel({
+    const searchPostModel = new SearchPostModel<SearchPostType>({
       postId: postData.postId,
-      title: postData.title,
+      userId: postData.userId,
       content: postData.content,
     });
     await searchPostModel.save();
