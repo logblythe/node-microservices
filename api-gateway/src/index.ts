@@ -126,6 +126,32 @@ app.use(
   })
 );
 
+app.use(
+  "/search-service",
+  validateToken,
+  proxy(process.env.SEARCH_SERVICE_URL!, {
+    proxyReqPathResolver: (req) =>
+      req.originalUrl.replace("/search-service", ""),
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      proxyReqOpts.headers["Content-Type"] = "application/json";
+      proxyReqOpts.headers["x-user-id"] = srcReq.user!.userId;
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      userRes.setHeader("X-Proxy-By", "API Gateway");
+      logger.info(
+        "Response received from Search Service: %s",
+        proxyRes.statusCode
+      );
+      return proxyResData;
+    },
+    proxyErrorHandler: (err, res, next) => {
+      logger.error("Error in proxying request: %s", err.message);
+      next(err);
+    },
+  })
+);
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
