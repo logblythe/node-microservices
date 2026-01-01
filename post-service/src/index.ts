@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import Express from "express";
+import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { Redis } from "ioredis";
 import mongoose from "mongoose";
@@ -38,6 +39,21 @@ mongoose
 app.use(helmet());
 app.use(cors());
 app.use(Express.json());
+
+const rateLimitOptions = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  handler: (req, res) => {
+    logger.warn("Rate limit exceeded for IP: %s", req.ip);
+    res.status(429).json({
+      message: "Too many requests, please try again later.",
+    });
+  },
+});
+
+app.use(rateLimitOptions);
 
 app.use(
   "/api/v1/posts",
